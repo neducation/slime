@@ -74,7 +74,9 @@ button:hover {
   font-size: 1em;
   align-items: center;
 }
-#energy, #xp, #streak {
+#energy,
+#xp,
+#streak {
   background: #fff;
   border-radius: 0.5em;
   padding: 0.2em 0.6em;

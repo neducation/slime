@@ -87,7 +87,7 @@ async function recognizeBird(audioBlob) {
     { name: "Baltimore Oriole" },
     { name: "Downy Woodpecker" },
     { name: "Mourning Dove" },
-    { name: "Red-winged Blackbird" }
+    { name: "Red-winged Blackbird" },
   ];
   let bird;
   if (rareBoost && Math.random() < 0.5) {
@@ -111,10 +111,14 @@ async function fetchBirdInfo(name) {
     try {
       // Use Replicate's free endpoint for demo (replace with your own key for production)
       // We'll use a placeholder cartoon bird image for demo
-      image = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}&backgroundColor=ffd700,00b894`;
+      image = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(
+        name
+      )}&backgroundColor=ffd700,00b894`;
       // Optionally, fetch summary from Wikipedia
       const wikiTitle = name.replace(/ /g, "_");
-      const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${wikiTitle}`);
+      const res = await fetch(
+        `https://en.wikipedia.org/api/rest_v1/page/summary/${wikiTitle}`
+      );
       const data = await res.json();
       summary = data.extract || "A beautiful bird.";
     } catch {
@@ -122,8 +126,10 @@ async function fetchBirdInfo(name) {
     }
     // Assign rarity
     if (name.includes("Phoenix")) rarity = "Legendary";
-    else if (name.includes("Tanager") || name.includes("Oriole")) rarity = "Rare";
-    else if (name.includes("Woodpecker") || name.includes("Blackbird")) rarity = "Uncommon";
+    else if (name.includes("Tanager") || name.includes("Oriole"))
+      rarity = "Rare";
+    else if (name.includes("Woodpecker") || name.includes("Blackbird"))
+      rarity = "Uncommon";
   }
   return { name, image, summary, rarity };
 }
@@ -199,7 +205,9 @@ function buyEnergy() {
 
 function buyBoost() {
   rareBoost = true;
-  setTimeout(() => { rareBoost = false; }, 60000); // 1 min boost
+  setTimeout(() => {
+    rareBoost = false;
+  }, 60000); // 1 min boost
   alert("Rare Boost activated for 1 minute!");
 }
 
