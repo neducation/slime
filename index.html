@@ -20,52 +20,61 @@
         </section>
         <section id="bird-section" style="display: none">
           <h2>Detected Bird</h2>
-          <div id="birdInfo">
-            <img <div id="app" />
-            <header>
-              <h1>🦜 Bird Pokedex</h1>
-              <div id="energy-xp">
-                <span id="energy"
-                  >⚡ Energy: <span id="energyValue"></span
-                ></span>
-                <span id="xp">⭐ XP: <span id="xpValue"></span></span>
-                <span id="streak"
-                  >🔥 Streak: <span id="streakValue"></span
-                ></span>
+          <!DOCTYPE html>
+          <html lang="en">
+            <head>
+              <meta charset="UTF-8" />
+              <meta
+                name="viewport"
+                content="width=device-width, initial-scale=1.0"
+              />
+              <title>Birdemon: The Ultimate Bird Battler</title>
+              <link rel="stylesheet" href="style.css" />
+            </head>
+            <body>
+              <div id="app">
+                <header>
+                  <h1>🦜 Birdemon</h1>
+                  <div id="stats-bar">
+                    <span id="coins">🪙 0</span>
+                    <span id="energy">⚡ 10</span>
+                    <span id="streak">🔥 0</span>
+                  </div>
+                </header>
+                <main>
+                  <section id="discover-section">
+                    <button id="recordBtn">🎤 Discover Birdemon</button>
+                    <div id="recordStatus"></div>
+                  </section>
+                  <section id="birdemon-section" style="display: none">
+                    <h2>New Birdemon!</h2>
+                    <div id="birdemonCard"></div>
+                    <button id="addToTeamBtn">Add to Team</button>
+                  </section>
+                  <section id="team-section">
+                    <h2>Your Team</h2>
+                    <div id="team"></div>
+                  </section>
+                  <section id="battle-section">
+                    <h2>Battle Arena</h2>
+                    <button id="findBattleBtn">Find Wild Battle</button>
+                    <div id="battle"></div>
+                  </section>
+                  <section id="shop-section">
+                    <h2>Shop</h2>
+                    <button id="buyEnergy">Buy Energy (5⚡/10🪙)</button>
+                    <button id="buyEgg">Buy Rare Egg (1🥚/50�)</button>
+                  </section>
+                  <section id="rewards-section">
+                    <h2>Daily Rewards</h2>
+                    <button id="claimRewardBtn">Claim</button>
+                    <div id="rewardStatus"></div>
+                  </section>
+                </main>
               </div>
-            </header>
-            <main>
-              <section id="record-section">
-                <button id="recordBtn">🎤 Record Bird Sound</button>
-                <div id="recordStatus"></div>
-              </section>
-              <section id="bird-section" style="display: none">
-                <h2>New Bird Discovered!</h2>
-                <div id="birdInfo">
-                  <img
-                    id="birdImage"
-                    src=""
-                    alt="Bird"
-                    style="display: none; max-width: 120px; max-height: 120px"
-                  />
-                  <div id="birdName"></div>
-                  <div id="birdDetails"></div>
-                  <div id="birdRarity"></div>
-                </div>
-              </section>
-              <section id="vault-section">
-                <h2>Your Bird Collection</h2>
-                <div id="vault"></div>
-              </section>
-              <section id="shop-section">
-                <h2>Shop</h2>
-                <button id="buyEnergy">Buy Energy ⚡</button>
-                <button id="buyBoost">Buy Rare Boost 🦄</button>
-                <button id="expandVault">Expand Vault 📦</button>
-              </section>
-            </main>
-          </div>
-          <script src="main.js"></script>
+              <script src="main.js"></script>
+            </body>
+          </html>
         </section>
       </main>
     </div>

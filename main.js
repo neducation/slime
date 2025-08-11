@@ -147,87 +147,275 @@ function showDetectedBird(bird) {
   }
 }
 
-// Microphone recording
-let mediaRecorder = null;
-let audioChunks = [];
+// Birdemon: The Ultimate Bird Battler
+// All logic in one file for demo. No backend required.
 
-function startRecording() {
+// --- Data ---
+const BIRDEMON_TYPES = [
+  "Flying",
+  "Electric",
+  "Grass",
+  "Fire",
+  "Water",
+  "Normal",
+  "Dark",
+  "Fairy",
+  "Legendary",
+];
+const TYPE_WEAKNESS = {
+  Flying: ["Electric"],
+  Electric: ["Grass"],
+  Grass: ["Fire"],
+  Fire: ["Water"],
+  Water: ["Electric"],
+  Normal: ["Dark"],
+  Dark: ["Fairy"],
+  Fairy: ["Dark"],
+  Legendary: [],
+};
+const BIRDEMON_POOL = [
+  { name: "Cardinowl", type: "Flying", base: 50 },
+  { name: "Sparkrill", type: "Electric", base: 48 },
+  { name: "Leafowl", type: "Grass", base: 46 },
+  { name: "Pyreagle", type: "Fire", base: 52 },
+  { name: "Aqualoon", type: "Water", base: 47 },
+  { name: "Dovetail", type: "Normal", base: 44 },
+  { name: "Noctowl", type: "Dark", base: 53 },
+  { name: "Pixieparrot", type: "Fairy", base: 45 },
+  { name: "Zeuswren", type: "Legendary", base: 60 },
+];
+
+// --- State ---
+let coins = 0;
+let team = [];
+let discovered = [];
+let lastRewardDay = "";
+
+// --- Utility ---
+function $(id) {
+  return document.getElementById(id);
+}
+function save() {
+  localStorage.setItem("birdemon_coins", coins);
+  localStorage.setItem("birdemon_energy", energy);
+  localStorage.setItem("birdemon_streak", streak);
+  localStorage.setItem("birdemon_team", JSON.stringify(team));
+  localStorage.setItem("birdemon_discovered", JSON.stringify(discovered));
+  localStorage.setItem("birdemon_lastRewardDay", lastRewardDay);
+}
+function load() {
+  coins = parseInt(localStorage.getItem("birdemon_coins")) || 0;
+  energy = parseInt(localStorage.getItem("birdemon_energy")) || 10;
+  streak = parseInt(localStorage.getItem("birdemon_streak")) || 0;
+  team = JSON.parse(localStorage.getItem("birdemon_team") || "[]");
+  discovered = JSON.parse(localStorage.getItem("birdemon_discovered") || "[]");
+  lastRewardDay = localStorage.getItem("birdemon_lastRewardDay") || "";
+}
+function updateStats() {
+  $("coins").textContent = `🪙 ${coins}`;
+  $("energy").textContent = `⚡ ${energy}`;
+  $("streak").textContent = `🔥 ${streak}`;
+}
+
+// --- Birdemon Generation ---
+function randomBirdemon() {
+  const b = BIRDEMON_POOL[Math.floor(Math.random() * BIRDEMON_POOL.length)];
+  // Generate stats
+  const level = 1;
+  const hp = b.base + Math.floor(Math.random() * 10);
+  const atk = b.base + Math.floor(Math.random() * 8);
+  const def = b.base + Math.floor(Math.random() * 6);
+  const xp = 0;
+  const id = `${b.name}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  return {
+    id,
+    name: b.name,
+    type: b.type,
+    level,
+    hp,
+    atk,
+    def,
+    xp,
+    img: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(
+      b.name
+    )}&backgroundColor=ffd700,00b894`,
+  };
+}
+
+// --- UI Rendering ---
+function renderBirdemonCard(b, showStats = true) {
+  return `<div class='birdemon-card'>
+    <img src='${b.img}' alt='${b.name}'>
+    <div><b>${b.name}</b></div>
+    <span class='birdemon-type ${b.type}'>${b.type}</span>
+    ${
+      showStats
+        ? `<div class='birdemon-stats'>Lv.${b.level} | HP:${b.hp} | ATK:${b.atk} | DEF:${b.def}</div>`
+        : ""
+    }
+  </div>`;
+}
+function renderTeam() {
+  $("team").innerHTML = team.map((b) => renderBirdemonCard(b)).join("");
+}
+function renderDiscovered() {
+  // Not shown in UI, but could be used for a Pokedex
+}
+function showBirdemon(b) {
+  $("birdemonCard").innerHTML = renderBirdemonCard(b);
+  $("birdemon-section").style.display = "block";
+}
+function hideBirdemon() {
+  $("birdemon-section").style.display = "none";
+}
+function showBattle(result, yourB, wildB) {
+  $("battle").innerHTML = `
+    <div style='display:flex;gap:1em;justify-content:center;'>
+      <div>${renderBirdemonCard(yourB)}</div>
+      <div style='align-self:center;font-size:2em;'>⚔️</div>
+      <div>${renderBirdemonCard(wildB)}</div>
+    </div>
+    <div style='text-align:center;font-size:1.2em;margin-top:0.5em;'>${result}</div>
+  `;
+}
+
+// --- Game Logic ---
+let currentWild = null;
+$("recordBtn").onclick = () => {
   if (energy <= 0) {
-    alert("Out of energy! Buy more in the shop or wait for refill.");
+    alert("Out of energy!");
     return;
   }
-  $("recordStatus").textContent = "Listening...";
-  $("recordBtn").disabled = true;
-  navigator.mediaDevices
-    .getUserMedia({ audio: true })
-    .then((stream) => {
-      mediaRecorder = new MediaRecorder(stream);
-      audioChunks = [];
-      mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
-      mediaRecorder.onstop = async () => {
-        $("recordStatus").textContent = "Processing...";
-        const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
-        const bird = await recognizeBird(audioBlob);
-        showDetectedBird(bird);
-        addToVault(bird);
-        xp += 10;
-        energy--;
-        updateStats();
-        saveStats();
-        // Streak logic
-        const today = new Date().toDateString();
-        if (lastDay !== today) {
-          streak++;
-          lastDay = today;
-          localStorage.setItem("lastDay", lastDay);
-        }
-        $("recordStatus").textContent = "";
-        $("recordBtn").disabled = false;
-      };
-      mediaRecorder.start();
-      setTimeout(() => {
-        if (mediaRecorder && mediaRecorder.state === "recording") {
-          mediaRecorder.stop();
-        }
-      }, 4000); // 4 seconds
-    })
-    .catch(() => {
-      $("recordStatus").textContent = "Microphone access denied.";
-      $("recordBtn").disabled = false;
-    });
-}
-
-function buyEnergy() {
-  energy += 10;
+  energy--;
   updateStats();
-  saveStats();
-}
-
-function buyBoost() {
-  rareBoost = true;
-  setTimeout(() => {
-    rareBoost = false;
-  }, 60000); // 1 min boost
-  alert("Rare Boost activated for 1 minute!");
-}
-
-function expandVault() {
-  vaultLimit += 10;
+  const b = randomBirdemon();
+  currentWild = b;
+  showBirdemon(b);
+};
+$("addToTeamBtn").onclick = () => {
+  if (!currentWild) return;
+  if (team.length >= 6) {
+    alert("Team full! Remove a Birdemon first.");
+    return;
+  }
+  team.push(currentWild);
+  discovered.push(currentWild);
+  coins += 5;
   updateStats();
-  saveStats();
-  alert("Vault expanded! You can now store more birds.");
+  renderTeam();
+  hideBirdemon();
+  save();
+};
+function pickRandomTeamBird() {
+  if (team.length === 0) return null;
+  return team[Math.floor(Math.random() * team.length)];
 }
-
-function setupShop() {
-  $("buyEnergy").onclick = buyEnergy;
-  $("buyBoost").onclick = buyBoost;
-  $("expandVault").onclick = expandVault;
-}
-
+$("findBattleBtn").onclick = () => {
+  if (team.length === 0) {
+    alert("No Birdemon in your team!");
+    return;
+  }
+  if (energy <= 0) {
+    alert("Out of energy!");
+    return;
+  }
+  energy--;
+  updateStats();
+  const yourB = pickRandomTeamBird();
+  const wildB = randomBirdemon();
+  // Battle logic
+  let yourPower = yourB.atk + yourB.def + Math.random() * 10;
+  let wildPower = wildB.atk + wildB.def + Math.random() * 10;
+  // Type advantage
+  if (
+    TYPE_WEAKNESS[wildB.type] &&
+    TYPE_WEAKNESS[wildB.type].includes(yourB.type)
+  )
+    wildPower *= 1.2;
+  if (
+    TYPE_WEAKNESS[yourB.type] &&
+    TYPE_WEAKNESS[yourB.type].includes(wildB.type)
+  )
+    yourPower *= 1.2;
+  let result;
+  if (yourPower > wildPower) {
+    result = "You Win! +10🪙 +10XP";
+    coins += 10;
+    yourB.xp += 10;
+    if (yourB.xp >= 30) {
+      yourB.level++;
+      yourB.xp = 0;
+      yourB.hp += 5;
+      yourB.atk += 2;
+      yourB.def += 2;
+      result += " Birdemon leveled up!";
+    }
+  } else {
+    result = "You Lose! +2XP";
+    yourB.xp += 2;
+  }
+  updateStats();
+  renderTeam();
+  showBattle(result, yourB, wildB);
+  save();
+};
+$("buyEnergy").onclick = () => {
+  if (coins < 10) {
+    alert("Not enough coins!");
+    return;
+  }
+  coins -= 10;
+  energy += 5;
+  updateStats();
+  save();
+};
+$("buyEgg").onclick = () => {
+  if (coins < 50) {
+    alert("Not enough coins!");
+    return;
+  }
+  coins -= 50;
+  // Add a random legendary
+  const leg = BIRDEMON_POOL.find((b) => b.type === "Legendary");
+  const b = {
+    ...leg,
+    id: `egg-${Date.now()}`,
+    level: 1,
+    hp: leg.base + 10,
+    atk: leg.base + 8,
+    def: leg.base + 6,
+    xp: 0,
+    img: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(
+      leg.name
+    )}&backgroundColor=ffd700,00b894`,
+  };
+  team.push(b);
+  discovered.push(b);
+  updateStats();
+  renderTeam();
+  save();
+  alert("You hatched a Legendary Birdemon!");
+};
+$("claimRewardBtn").onclick = () => {
+  const today = new Date().toDateString();
+  if (lastRewardDay === today) {
+    $("rewardStatus").textContent = "Already claimed today!";
+    return;
+  }
+  coins += 15;
+  energy += 3;
+  streak++;
+  lastRewardDay = today;
+  updateStats();
+  save();
+  $("rewardStatus").textContent = "Reward claimed! +15🪙 +3⚡";
+};
+// --- Init ---
 window.onload = function () {
-  lastDay = localStorage.getItem("lastDay") || null;
-  loadVault();
+  load();
   updateStats();
-  $("recordBtn").onclick = startRecording;
-  setupShop();
+  renderTeam();
+  hideBirdemon();
+  $("battle").innerHTML = "";
+  $("rewardStatus").textContent = "";
 };

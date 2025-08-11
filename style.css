@@ -104,39 +104,119 @@ button:hover {
   text-align: center;
   margin-bottom: 1em;
 }
-#birdInfo img {
-  border: 3px solid #00b894;
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #eaf6fb;
+  color: #222;
+}
+#app {
+  max-width: 480px;
+  margin: auto;
+  padding: 1em;
+}
+header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #81ecec;
+  padding: 1em;
   border-radius: 1em;
-  margin-bottom: 0.5em;
-}
-#birdRarity {
-  font-weight: bold;
-  margin-top: 0.5em;
-}
-#vault-section {
   margin-bottom: 1em;
 }
-#shop-section {
-  background: #ffeaa7;
+#stats-bar {
+  display: flex;
+  gap: 1em;
+  font-size: 1.1em;
+  margin-top: 0.5em;
+}
+main section {
+  background: #fff;
   border-radius: 1em;
+  margin-bottom: 1em;
   padding: 1em;
   box-shadow: 0 2px 8px #0001;
-  text-align: center;
 }
-#shop-section button {
-  background: #fdcb6e;
-  color: #222;
+button {
+  background: #00b894;
+  color: #fff;
   border: none;
   border-radius: 0.5em;
-  padding: 0.5em 1.5em;
-  margin: 0.5em;
+  padding: 0.7em 1.5em;
   font-size: 1em;
+  margin: 0.5em 0;
   cursor: pointer;
   transition: background 0.2s;
 }
-#shop-section button:hover {
-  background: #e17055;
+button:hover {
+  background: #0984e3;
+}
+#team,
+#battle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+}
+.birdemon-card {
+  background: #dff9fb;
+  border-radius: 1em;
+  box-shadow: 0 2px 8px #0002;
+  padding: 1em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 160px;
+  margin: auto;
+}
+.birdemon-card img {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 1em;
+  margin-bottom: 0.5em;
+}
+.birdemon-stats {
+  font-size: 0.95em;
+  margin-top: 0.5em;
+}
+.birdemon-type {
+  font-weight: bold;
+  padding: 0.2em 0.6em;
+  border-radius: 0.5em;
+  margin: 0.2em;
   color: #fff;
+  background: #636e72;
+  display: inline-block;
+}
+.birdemon-type.Flying {
+  background: #74b9ff;
+}
+.birdemon-type.Electric {
+  background: #fdcb6e;
+  color: #222;
+}
+.birdemon-type.Grass {
+  background: #00b894;
+}
+.birdemon-type.Fire {
+  background: #d63031;
+}
+.birdemon-type.Water {
+  background: #0984e3;
+}
+.birdemon-type.Normal {
+  background: #b2bec3;
+  color: #222;
+}
+.birdemon-type.Dark {
+  background: #2d3436;
+}
+.birdemon-type.Fairy {
+  background: #fd79a8;
+}
+.birdemon-type.Legendary {
+  background: #fdcb6e;
+  color: #d35400;
 }
 @media (max-width: 600px) {
   #app {
@@ -145,10 +225,7 @@ button:hover {
   main section {
     padding: 0.5em;
   }
-  #calc-display {
-    width: 90vw;
-  }
-  #calc-buttons {
-    grid-template-columns: repeat(4, 20vw);
+  .birdemon-card {
+    width: 98vw;
   }
 }
